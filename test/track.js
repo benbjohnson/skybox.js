@@ -1,138 +1,123 @@
 describe('Track', function(){
-
-  var Track = require('track.js/lib/track')
-    , nextTick = require('next-tick')
-    , assert = require('assert')
-    , equals = require('equals');
+  var Track = require('track.js/lib/track'),
+      querystring = require('querystring'),
+      assert = chai.assert;
 
   var track = null;
   beforeEach(function() {
     track = new Track();
     track.options({mode:"test", device:{mode:"test"}});
     track.host = null;
-    track.resource("/index.html");
+  });
+
+  afterEach(function() {
+    if (document.body.lastChild.tagName == "img") {
+      document.body.removeChild(document.body.lastChild);
+    }
   });
 
   describe('#initialize()', function(){
     it('should be initialized', function(){
-      track.initialize();
-      assert(track.initialized == true);
+      track.initialize("");
+      assert.equal(track.initialized, true);
+    });
+
+    it('should set api key', function(){
+      track.initialize("API_KEY");
+      assert.equal(track.apiKey, "API_KEY");
     });
 
     it('should set cookie options', function(){
-      track.initialize({cookie: {maxage: 100}});
+      track.initialize("API_KEY", {cookie: {maxage: 100}});
       assert(track.cookie.options().maxage == 100);
     });
 
     it('should set user options', function(){
-      track.initialize({user: {foo: "bar"}});
+      track.initialize("API_KEY", {user: {foo: "bar"}});
       assert(track.user.options().foo == "bar");
     });
   });
 
   describe('#identify', function () {
     beforeEach(function() {
-      track.cookie.set("ldmk_user_id", null);
+      track.cookie.set("trackjs_UserID", null);
     });
 
-    it('should set the user id only', function(){
+    it('should set the user id', function(){
       track.identify("foo");
       assert(track.user.id() == "foo");
-    });
-
-    it('should set the user id and traits', function(){
-      track.identify("foo", {"name":"bob"});
-      assert(track.user.id() == "foo");
-      assert(track.user.traits().name == "bob");
-    });
-
-    it('should set the traits only', function(){
-      track.identify({"name":"susy"});
-      assert(track.user.id() == null);
-      assert(track.user.traits().name == "susy");
     });
   });
 
   describe('#track', function () {
-    it('should not track without traits or event', function(done){
-      track.identify("foo", function(success, url) {
-        assert(!success);
-        done();
-      });
+    beforeEach(function() {
+      track.initialize("API_KEY")
     });
 
-    it('should track traits-only', function(done){
-      track.identify("foo", {name:"john"}, function(success, url) {
-        assert(url == track._trackurl({user:{id:"foo", traits:{name:"john"}}, device:{id:"x"}}), url);
-        done();
-      });
+    it('should track page', function(){
+      track.domain = sinon.stub().returns("google.com");
+      track.path = sinon.stub().returns("/users/123/projects/456");
+      track.page();
+
+      var url = document.body.lastChild.src;
+      var q = querystring.parse(url.substr(url.indexOf("?")+1))
+      assert.equal(q["channel"], "web");
+      assert.equal(q["resource"], "/users/:id/projects/:id");
+      assert.equal(q["action"], "view");
+      assert.equal(q["domain"], "google.com");
+      assert.equal(q["path"], "/users/123/projects/456");
+      assert.equal(q["apiKey"], "API_KEY");
+      assert.strictEqual(q["user.id"], undefined);
+      assert.equal(q["device.id"].length, 32);
     });
 
-    it('should track action-only', function(done){
-      track.track("Page View", function(success, url) {
-        assert(equals(track._parsetrackurl(url), {
-          event:{
-            channel: "Web",
-            resource: "/index.html",
-            action: "Page View",
-          },
-          device:{id:"x"}
-        }));
-        done();
-      });
+    it('should track page with identified user', function(){
+      track.identify(123);
+      track.page();
+
+      var url = document.body.lastChild.src;
+      var q = querystring.parse(url.substr(url.indexOf("?")+1))
+      assert.equal(q["user.id"], "123");
     });
 
-    it('should track action and properties', function(done){
-      track.track("Page View", {total_price:100}, function(success, url) {
-        assert(equals(track._parsetrackurl(url), {
-          event:{
-            channel: "Web",
-            resource: "/index.html",
-            action: "Page View",
-            total_price: 100,
-          },
-          device:{id:"x"}
-        }));
-        done();
-      });
+    it('should not track before initialization', function(){
+      track.log = sinon.spy();
+      track.initialized = false;
+      track.page();
+      assert.equal(track.log.getCall(0).args[0], "tracking not allowed before initialization");
+    });
+  });
+
+  describe('#resource', function () {
+    it('should return a normalized path', function(){
+      track.path = sinon.stub().returns("/users/1/projects/456");
+      assert.equal(track.resource(), "/users/:id/projects/:id")
     });
 
-    it('should track identity then event', function(done){
-      track.identify("foo", {name:"John"});
-      track.track("Click", function(success, url) {
-        assert(equals(track._parsetrackurl(url), {
-          user:{
-            id: "foo",
-            traits: {name:"John"}
-          },
-          event:{
-            channel: "Web",
-            resource: "/index.html",
-            action: "Click",
-          },
-          device:{id:"x"}
-        }));
-        done();
-      });
+    it('should use resource value', function(){
+      track.resource("foo");
+      assert.equal(track.resource(), "foo");
     });
 
-    it('should track event then identity', function(done){
-      track.track("Click", function(success, url) {
-        assert(equals(track._parsetrackurl(url), {
-          user:{
-            id: "foo",
-            traits: {name:"John"}
-          },
-          event:{
-            channel: "Web",
-            resource: "/index.html",
-            action: "Click",
-          },
-          device:{id:"x"}
-        }));
-        done();
-      });
-      track.identify("foo", {name:"John"});
+    it('should use resource function', function(){
+      track.resource(function() { return "bar"; });
+      assert.equal(track.resource(), "bar");
+    });
+  });
+
+  describe('#url', function () {
+    it('should return url', function(){
+      assert.equal(track.url("/foo", {bar:"baz"}), "http://localhost/foo?bar=baz")
+    });
+
+    it('should return url with host', function(){
+      track.host = "google.com";
+      assert.equal(track.url("/foo"), "http://google.com/foo")
+    });
+
+    it('should return url with port', function(){
+      track.port = 2000;
+      assert.equal(track.url("/foo"), "http://localhost:2000/foo")
     });
   });
 });

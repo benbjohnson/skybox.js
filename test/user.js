@@ -1,8 +1,7 @@
 describe('User', function(){
 
-  var User = require('track.js/lib/user')
-    , assert = require('assert')
-    , equals = require('equals');
+  var User = require('track.js/lib/user'),
+      assert = chai.assert;;
 
   var user = null;
 
@@ -13,14 +12,14 @@ describe('User', function(){
   describe('#id()', function(){
     it('should set and retrieve', function(){
       user.id(12);
-      assert(user.id() == 12);
+      assert.equal(user.id(), 12);
     });
   });
 
   describe('#identify()', function(){
     it('should set id', function(){
       user.identify("100");
-      assert(user.id() == "100");
+      assert.equal(user.id(), "100");
     });
   });
 
@@ -28,14 +27,14 @@ describe('User', function(){
     it('should clear id', function(){
       user.identify("100");
       user.logout();
-      assert(user.id() === null);
+      assert.strictEqual(user.id(), null);
     });
   });
 
   describe('#serialize()', function(){
     it('should serialize id', function(){
       user.identify("100");
-      assert(equals(user.serialize(), {id:"100"}));
+      assert.deepEqual(user.serialize(), {id:"100"});
     });
   });
 });

@@ -1,8 +1,7 @@
 describe('Device', function(){
 
-  var Device = require('track.js/lib/device')
-    , assert = require('assert')
-    , equals = require('equals');
+  var Device = require('track.js/lib/device'),
+      assert = chai.assert;;
 
   var device = null;
 
@@ -12,13 +11,13 @@ describe('Device', function(){
 
   describe('#id()', function(){
     it('should be 32 characters', function(){
-      assert(device.id().length == 32);
+      assert.equal(device.id().length, 32);
     });
   });
 
   describe('#serialize()', function(){
     it('should serialize id only', function(){
-      assert(equals(device.serialize(), {id:device.id()}));
+      assert.deepEqual(device.serialize(), {id:device.id()});
     });
   });
 });

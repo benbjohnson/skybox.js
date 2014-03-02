@@ -796,6 +796,7 @@ exports.stringify = function(obj){
 
 });
 require.register("component-type/index.js", function(exports, require, module){
+
 /**
  * toString ref.
  */
@@ -812,21 +813,18 @@ var toString = Object.prototype.toString;
 
 module.exports = function(val){
   switch (toString.call(val)) {
+    case '[object Function]': return 'function';
     case '[object Date]': return 'date';
     case '[object RegExp]': return 'regexp';
     case '[object Arguments]': return 'arguments';
     case '[object Array]': return 'array';
-    case '[object Error]': return 'error';
+    case '[object String]': return 'string';
   }
 
   if (val === null) return 'null';
   if (val === undefined) return 'undefined';
-  if (val !== val) return 'nan';
   if (val && val.nodeType === 1) return 'element';
-
-  return typeof val.valueOf();
-};
-ject(val)) return 'object';
+  if (val === Object(val)) return 'object';
 
   return typeof val;
 };
@@ -1044,18 +1042,23 @@ var Cookie      = require('./cookie'),
     type        = require('type');
 
 function Track() {
-    this.host = "";
+    this.apiKey = null;
+    this.host = null;
     this.port = 80;
     this.cookie = new Cookie();
     this.device = new Device();
     this.user = new User();
     this.initialized = false;
+    this.resource(function () {
+        return this.path().replace(/\/\d+(?=\/|\b)/g, "/:id");
+    });
 }
 
-Track.prototype.initialize = function (options) {
+Track.prototype.initialize = function (apiKey, options) {
+    var self = this;
+    this.apiKey = apiKey;
     this.options(options);
     this.initialized = true;
-    this.pageview();
 };
 
 Track.prototype.init = Track.prototype.inititialize;
@@ -1093,10 +1096,11 @@ Track.prototype.track = function (action) {
             resource: this.resource(),
             action: action,
             domain: this.domain(),
+            path: this.path(),
         };
 
     // Ignore if not initialized yet.
-    if (!this.initialized()) {
+    if (!this.initialized) {
         this.log("tracking not allowed before initialization");
         return this;
     }
@@ -1121,7 +1125,6 @@ Track.prototype.track = function (action) {
             document.body.removeChild(el);
         } catch (e) {
         }
-
     }, 100);
 
     return this;
@@ -1137,17 +1140,28 @@ Track.prototype.page = function (name) {
 
 /**
  * Sets or retrieves the current resource. If set to a function then the
- * resource will be the result of the function with the following signature:
- *
- *   function (pathname)
- *
+ * resource will be the result of the function.
  */
 Track.prototype.resource = function (value) {
     if (arguments.length === 0) {
-        return this._resource(window.location.pathname);
+        return this._resource();
     }
     var v = (typeof (value) === "function" ? value : function () { return value; });
     this._resource = v;
+};
+
+/**
+ * Retrieves the current domain of the page.
+ */
+Track.prototype.domain = function () {
+    return window.location.host.replace(/:80$/, "");
+};
+
+/**
+ * Retrieves the current path of the page.
+ */
+Track.prototype.path = function () {
+    return window.location.pathname.replace(/\/+$/, "");
 };
 
 /**
