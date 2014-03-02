@@ -5,7 +5,7 @@ PHANTOM = node_modules/.bin/mocha-phantomjs
 LINT = node_modules/.bin/jslint
 
 build: components lib/*.js
-	mkdir build
+	@mkdir -p build
 	@component build --dev
 
 clean:
