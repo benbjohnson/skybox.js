@@ -1,0 +1,37 @@
+{
+  "name": "track.js",
+  "repo": "benbjohnson/track.js",
+  "description": "Tracking library for Skybox",
+  "version": "0.1.0",
+  "keywords": [],
+  "dependencies": {
+    "avetisk/defaults": "0.0.4",
+    "component/bind": "0.0.1",
+    "component/clone": "0.1.0",
+    "component/cookie": "1.0.1",
+    "component/each": "0.1.0",
+    "component/querystring": "1.1.0",
+    "component/type": "1.0.0",
+    "ianstormtaylor/is-empty": "0.0.1",
+    "segmentio/extend": "0.0.1",
+    "segmentio/top-domain": "0.0.1",
+    "timoxley/next-tick": "0.0.2"
+  },
+  "development": {
+    "component/assert": "*",
+    "jkroso/equals": "*",
+    "visionmedia/mocha": "*",
+    "visionmedia/mocha-cloud": "*",
+    "visionmedia/mocha-matrix": "*"
+  },
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": [
+    "lib/index.js",
+    "lib/track.js",
+    "lib/device.js",
+    "lib/cookie.js",
+    "lib/user.js"
+  ],
+  "remotes": []
+}

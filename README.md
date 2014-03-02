@@ -1,4 +1,4 @@
-skybox.js
+track.js
 =========
 
-JavaScript library for Skybox web site tracking.
+JavaScript library for web site tracking.
