@@ -38,6 +38,28 @@ describe('Skybox', function(){
     });
   });
 
+  describe('#autoinitialize()', function(){
+    it('should automatically extract the api key', function(){
+      skybox.autoinitialize();
+      assert.equal(skybox.apiKey, "TEST-AUTO-KEY");
+    });
+
+    it('should automatically extract the host', function(){
+      skybox.autoinitialize();
+      assert.equal(skybox.host, "test.skyboxanalytics.com");
+    });
+
+    it('should automatically track the page', function(){
+      skybox.autoinitialize();
+      skybox.path = sinon.stub().returns("/users/123/projects/456");
+      skybox.page();
+
+      var url = document.body.lastChild.src;
+      var q = querystring.parse(url.substr(url.indexOf("?")+1))
+      assert.equal(q["resource"], "/users/:id/projects/:id");
+    });
+  });
+
   describe('#identify', function () {
     beforeEach(function() {
       skybox.cookie.set("skybox_UserID", null);

@@ -1019,9 +1019,12 @@ require.register("skybox/lib/index.js", function(exports, require, module){
 /*jslint browser: true, nomen: true*/
 
 var Skybox = require('./skybox'),
-    bind  = require('bind');
+    bind  = require('bind'),
+    skybox = new Skybox();
 
-module.exports = new Skybox();
+skybox.autoinitialize();
+
+module.exports = skybox;
 
 bind(module.exports, module.exports.init);
 bind(module.exports, module.exports.initialize);
@@ -1030,7 +1033,7 @@ bind(module.exports, module.exports.initialize);
 require.register("skybox/lib/skybox.js", function(exports, require, module){
 
 "use strict";
-/*jslint browser: true, nomen: true*/
+/*jslint browser: true, nomen: true, regexp: true*/
 
 var Cookie      = require('./cookie'),
     Device      = require('./device'),
@@ -1039,12 +1042,14 @@ var Cookie      = require('./cookie'),
     extend      = require('extend'),
     isEmpty     = require('is-empty'),
     querystring = require('querystring'),
-    type        = require('type');
+    type        = require('type'),
+    DEFAULTHOST = null,
+    DEFAULTPORT = 80;
 
 function Skybox() {
     this.apiKey = null;
-    this.host = null;
-    this.port = 80;
+    this.host = DEFAULTHOST;
+    this.port = DEFAULTPORT;
     this.cookie = new Cookie();
     this.device = new Device();
     this.user = new User();
@@ -1062,6 +1067,38 @@ Skybox.prototype.initialize = function (apiKey, options) {
 };
 
 Skybox.prototype.init = Skybox.prototype.inititialize;
+
+/**
+ * Attempts to automatically initialize based on data attributes in the script tag:
+ * 
+ * <script data-api-key="XXX-XXXX"/>
+ */
+Skybox.prototype.autoinitialize = function () {
+    var arr, re, script = this.scriptElement();
+    if (script === null) {
+        return;
+    }
+
+    // Extract API key.
+    if (this.apiKey === null && script.getAttribute("data-api-key") !== null) {
+        this.initialize(script.getAttribute("data-api-key"));
+    }
+
+    // Extract host and port of script.
+    if (this.host === null) {
+        re = /^(?:https?:)?\/\/([^\/]+).*/;
+        if (script.src.search(re) === 0) {
+            arr = script.src.replace(re, "$1").split(":");
+            this.host = arr[0];
+            if (arr.length > 1 && !isNaN(parseInt(arr[1], 10))) {
+                this.port = parseInt(arr[1], 10);
+            }
+        }
+    }
+
+    // Automatically track the page.
+    this.page();
+};
 
 /**
  * Sets or retrieves the current options.
@@ -1200,6 +1237,19 @@ Skybox.prototype.url = function (path, q) {
     }
 
     return str;
+};
+
+/**
+ * Retrieves a reference to the first script element that loaded "skybox.js".
+ */
+Skybox.prototype.scriptElement = function () {
+    var i, scripts = document.getElementsByTagName("script");
+    for (i = 0; i < scripts.length; i += 1) {
+        if (scripts[i].src.search(/\/skybox.js(?!\/)/) !== -1) {
+            return scripts[i];
+        }
+    }
+    return null;
 };
 
 Skybox.prototype.log = function (msg) {
