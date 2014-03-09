@@ -1,6 +1,6 @@
 describe('Device', function(){
 
-  var Device = require('track.js/lib/device'),
+  var Device = require('skybox/lib/device'),
       assert = chai.assert;;
 
   var device = null;

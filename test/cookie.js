@@ -1,6 +1,6 @@
 describe('Cookie', function(){
 
-  var Cookie = require('track.js/lib/cookie'),
+  var Cookie = require('skybox/lib/cookie'),
       assert = chai.assert;;
 
   var cookie = null;

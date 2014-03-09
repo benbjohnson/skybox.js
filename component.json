@@ -1,6 +1,6 @@
 {
-  "name": "track.js",
-  "repo": "skybox/track.js",
+  "name": "skybox",
+  "repo": "skybox/skybox.js",
   "description": "Tracking library for Skybox",
   "version": "0.1.0",
   "keywords": [],
@@ -28,7 +28,7 @@
   "main": "lib/index.js",
   "scripts": [
     "lib/index.js",
-    "lib/track.js",
+    "lib/skybox.js",
     "lib/device.js",
     "lib/cookie.js",
     "lib/user.js"

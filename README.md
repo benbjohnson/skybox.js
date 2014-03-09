@@ -1,9 +1,9 @@
-track.js
+skybox.js
 =========
 
 ## Overview
 
-Track.js is a JavaScript library for web site tracking. This library is for use with the [Skybox](https://github.com/skybox/skybox) behavioral analytics tool.
+Skybox.js is a JavaScript library for web site tracking using the [Skybox](https://github.com/skybox/skybox) project.
 
 
 ## Contributing
@@ -22,9 +22,9 @@ installed and then run:
 $ make test
 ```
 
-To build the `track.js` and `track.min.js` files, run:
+To build the `skybox.js` and `skybox.min.js` files, run:
 
 ```sh
-$ make track.js
+$ make skybox.js
 ```
 

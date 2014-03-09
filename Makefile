@@ -20,8 +20,8 @@ lint:
 test: lint build
 	$(PHANTOM) test/index.html
 
-track.js: components
-	$(COMPONENT) build --standalone track --out . --name track
-	$(UGLIFY) track.js --output track.min.js
+skybox.js: components
+	$(COMPONENT) build --standalone skybox --out . --name skybox
+	$(UGLIFY) skybox.js --output skybox.min.js
 
 .PHONY: build clean components lint test

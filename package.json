@@ -1,15 +1,15 @@
 {
-  "name": "track.js",
-  "version": "0.0.1",
+  "name": "skybox",
+  "version": "0.1.0",
   "author": "Ben Johnson <ben@skylandlabs.com>",
-  "description": "Tracking library for Skybox",
+  "description": "Javascript library for Skybox",
   "license": "MIT",
-  "url": "https://github.com/skybox/track.js",
+  "url": "https://github.com/skybox/skybox.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/skybox/track.js.git"
+    "url": "git://github.com/skybox/skybox.js.git"
   },
-  "main": "track.js",
+  "main": "skybox.js",
   "dependencies": {},
   "devDependencies": {
     "component": "0.17.0",

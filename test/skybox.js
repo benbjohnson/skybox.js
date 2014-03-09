@@ -1,13 +1,13 @@
-describe('Track', function(){
-  var Track = require('track.js/lib/track'),
+describe('Skybox', function(){
+  var Skybox = require('skybox/lib/skybox'),
       querystring = require('querystring'),
       assert = chai.assert;
 
-  var track = null;
+  var skybox = null;
   beforeEach(function() {
-    track = new Track();
-    track.options({mode:"test", device:{mode:"test"}});
-    track.host = null;
+    skybox = new Skybox();
+    skybox.options({mode:"test", device:{mode:"test"}});
+    skybox.host = null;
   });
 
   afterEach(function() {
@@ -18,46 +18,46 @@ describe('Track', function(){
 
   describe('#initialize()', function(){
     it('should be initialized', function(){
-      track.initialize("");
-      assert.equal(track.initialized, true);
+      skybox.initialize("");
+      assert.equal(skybox.initialized, true);
     });
 
     it('should set api key', function(){
-      track.initialize("API_KEY");
-      assert.equal(track.apiKey, "API_KEY");
+      skybox.initialize("API_KEY");
+      assert.equal(skybox.apiKey, "API_KEY");
     });
 
     it('should set cookie options', function(){
-      track.initialize("API_KEY", {cookie: {maxage: 100}});
-      assert(track.cookie.options().maxage == 100);
+      skybox.initialize("API_KEY", {cookie: {maxage: 100}});
+      assert(skybox.cookie.options().maxage == 100);
     });
 
     it('should set user options', function(){
-      track.initialize("API_KEY", {user: {foo: "bar"}});
-      assert(track.user.options().foo == "bar");
+      skybox.initialize("API_KEY", {user: {foo: "bar"}});
+      assert(skybox.user.options().foo == "bar");
     });
   });
 
   describe('#identify', function () {
     beforeEach(function() {
-      track.cookie.set("trackjs_UserID", null);
+      skybox.cookie.set("skybox_UserID", null);
     });
 
     it('should set the user id', function(){
-      track.identify("foo");
-      assert(track.user.id() == "foo");
+      skybox.identify("foo");
+      assert(skybox.user.id() == "foo");
     });
   });
 
-  describe('#track', function () {
+  describe('#skybox', function () {
     beforeEach(function() {
-      track.initialize("API_KEY")
+      skybox.initialize("API_KEY")
     });
 
     it('should track page', function(){
-      track.domain = sinon.stub().returns("google.com");
-      track.path = sinon.stub().returns("/users/123/projects/456");
-      track.page();
+      skybox.domain = sinon.stub().returns("google.com");
+      skybox.path = sinon.stub().returns("/users/123/projects/456");
+      skybox.page();
 
       var url = document.body.lastChild.src;
       var q = querystring.parse(url.substr(url.indexOf("?")+1))
@@ -72,8 +72,8 @@ describe('Track', function(){
     });
 
     it('should track page with identified user', function(){
-      track.identify(123);
-      track.page();
+      skybox.identify(123);
+      skybox.page();
 
       var url = document.body.lastChild.src;
       var q = querystring.parse(url.substr(url.indexOf("?")+1))
@@ -81,43 +81,43 @@ describe('Track', function(){
     });
 
     it('should not track before initialization', function(){
-      track.log = sinon.spy();
-      track.initialized = false;
-      track.page();
-      assert.equal(track.log.getCall(0).args[0], "tracking not allowed before initialization");
+      skybox.log = sinon.spy();
+      skybox.initialized = false;
+      skybox.page();
+      assert.equal(skybox.log.getCall(0).args[0], "tracking not allowed before initialization");
     });
   });
 
   describe('#resource', function () {
     it('should return a normalized path', function(){
-      track.path = sinon.stub().returns("/users/1/projects/456");
-      assert.equal(track.resource(), "/users/:id/projects/:id")
+      skybox.path = sinon.stub().returns("/users/1/projects/456");
+      assert.equal(skybox.resource(), "/users/:id/projects/:id")
     });
 
     it('should use resource value', function(){
-      track.resource("foo");
-      assert.equal(track.resource(), "foo");
+      skybox.resource("foo");
+      assert.equal(skybox.resource(), "foo");
     });
 
     it('should use resource function', function(){
-      track.resource(function() { return "bar"; });
-      assert.equal(track.resource(), "bar");
+      skybox.resource(function() { return "bar"; });
+      assert.equal(skybox.resource(), "bar");
     });
   });
 
   describe('#url', function () {
     it('should return url', function(){
-      assert.equal(track.url("/foo", {bar:"baz"}), "http://localhost/foo?bar=baz")
+      assert.equal(skybox.url("/foo", {bar:"baz"}), "http://localhost/foo?bar=baz")
     });
 
     it('should return url with host', function(){
-      track.host = "google.com";
-      assert.equal(track.url("/foo"), "http://google.com/foo")
+      skybox.host = "google.com";
+      assert.equal(skybox.url("/foo"), "http://google.com/foo")
     });
 
     it('should return url with port', function(){
-      track.port = 2000;
-      assert.equal(track.url("/foo"), "http://localhost:2000/foo")
+      skybox.port = 2000;
+      assert.equal(skybox.url("/foo"), "http://localhost:2000/foo")
     });
   });
 });

@@ -1,6 +1,6 @@
 describe('User', function(){
 
-  var User = require('track.js/lib/user'),
+  var User = require('skybox/lib/user'),
       assert = chai.assert;;
 
   var user = null;
