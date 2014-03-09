@@ -4,10 +4,10 @@
   "author": "Ben Johnson <ben@skylandlabs.com>",
   "description": "Tracking library for Skybox",
   "license": "MIT",
-  "url": "https://github.com/benbjohnson/track.js",
+  "url": "https://github.com/skybox/track.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/benbjohnson/track.js.git"
+    "url": "git://github.com/skybox/track.js.git"
   },
   "main": "track.js",
   "dependencies": {},
